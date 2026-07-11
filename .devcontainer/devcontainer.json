@@ -1,5 +1,5 @@
 {
-  "name": "k8s-hyperledger-dev",
+  "name": "rewarm-dev",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
 
   "features": {
@@ -8,7 +8,7 @@
       "moby": true
     },
     "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.22"
+      "version": "1.23"
     },
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
@@ -32,8 +32,6 @@
       ]
     }
   },
-
-  "forwardPorts": [7050, 7051, 7054, 9443],
 
   "remoteUser": "vscode",
 
