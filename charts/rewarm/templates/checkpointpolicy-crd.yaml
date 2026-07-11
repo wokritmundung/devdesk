@@ -1,0 +1,40 @@
+# M2 CRD skeleton: CheckpointPolicy declares per-workload-class checkpoint
+# behavior. Shipped with the chart so policies can be authored early; the
+# preemption hook that consumes it lands in M2.
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: checkpointpolicies.rewarm.dev
+spec:
+  group: rewarm.dev
+  scope: Namespaced
+  names:
+    plural: checkpointpolicies
+    singular: checkpointpolicy
+    kind: CheckpointPolicy
+    shortNames: [ckp]
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [selector, mode]
+              properties:
+                selector:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                mode:
+                  type: string
+                  enum: [engine-native, process]
+                deadlineSeconds:
+                  type: integer
+                  minimum: 1
+                onUnavailable:
+                  type: string
+                  enum: [recompute, fail]
+                  default: recompute

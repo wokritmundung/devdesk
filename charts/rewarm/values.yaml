@@ -1,0 +1,22 @@
+image:
+  repository: ghcr.io/wokritmundung/rewarm-node-agent
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+nodeAgent:
+  listenPort: 8484
+  # Local NVMe staging root on the host. Point at your NVMe mount.
+  hostDataDir: /var/lib/rewarm/snapshots
+  # Default vLLM engine URL on the node (hostNetwork assumption in M1).
+  engineURL: "http://127.0.0.1:8000"
+  # Restrict to GPU nodes.
+  nodeSelector:
+    nvidia.com/gpu.present: "true"
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+
+# The process-level (CRIU) path requires privileged access. Disable to run
+# engine-native-only with a reduced security footprint (Design A posture).
+privileged: true
