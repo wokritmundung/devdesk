@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "rewarm.fullname" . }}-node-agent
+  labels: {{- include "rewarm.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "rewarm.name" . }}
+      app.kubernetes.io/component: node-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "rewarm.name" . }}
+        app.kubernetes.io/component: node-agent
+    spec:
+      {{- with .Values.nodeAgent.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeAgent.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      hostPID: {{ .Values.privileged }}
+      containers:
+        - name: node-agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - "-listen=:{{ .Values.nodeAgent.listenPort }}"
+            - "-data-dir=/data"
+            - "-engine-url={{ .Values.nodeAgent.engineURL }}"
+          ports:
+            - containerPort: {{ .Values.nodeAgent.listenPort }}
+              name: http
+          securityContext:
+            privileged: {{ .Values.privileged }}
+          volumeMounts:
+            - name: staging
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+      volumes:
+        - name: staging
+          hostPath:
+            path: {{ .Values.nodeAgent.hostDataDir }}
+            type: DirectoryOrCreate

@@ -1,7 +1,18 @@
-.PHONY: build test lint
+GO ?= go
+
+.PHONY: build test lint fmt run-agent
 build:
-	go build ./... 2>/dev/null || echo "no Go code yet (pre-M1)"
+	$(GO) build ./...
+
 test:
-	go test ./... 2>/dev/null || echo "no Go code yet (pre-M1)"
+	$(GO) test ./...
+
 lint:
-	golangci-lint run 2>/dev/null || echo "no Go code yet (pre-M1)"
+	$(GO) vet ./...
+	@command -v golangci-lint >/dev/null && golangci-lint run || echo "golangci-lint not installed; go vet only"
+
+fmt:
+	$(GO)fmt -w ./cmd ./pkg 2>/dev/null || gofmt -w ./cmd ./pkg
+
+run-agent:
+	$(GO) run ./cmd/node-agent -data-dir /tmp/rewarm-snapshots -engine-url http://127.0.0.1:8000

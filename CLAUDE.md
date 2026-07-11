@@ -45,3 +45,12 @@ No GPU slicing. No device plugin — DRA only, optional. No CNI interaction.
 - Every controller change needs an envtest; node-agent GPU paths get a fake-driver
   test double (real-GPU tests are manual, documented in the PR).
 - Commits: conventional commits (feat/fix/docs/chore).
+
+## M1 implementation notes
+
+- Agent API is JSON/HTTP in M1 (`pkg/api` types are protobuf-friendly); the
+  gRPC contract replaces the transport in M2 without changing semantics.
+- `rewarmctl` is the M1 manual trigger; the M2 preemption hook must drive the
+  exact same agent endpoints — no privileged side channels.
+- `checkpoint.ErrUnavailable` is a contract: policy (onUnavailable: recompute)
+  depends on paths reporting unavailability honestly instead of failing generically.
